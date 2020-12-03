@@ -1,0 +1,13 @@
+*to create env* : virtualenv computer_vision
+*activate env with* : computer_vision\Scripts\activate
+*disactive env* : deactivate
+
+--------------------------------------------------------
+
+*install python3 and pip*
+pip install pycuda
+pip install opencv-python
+
+--------------------------------------------------------
+
+test your installation using "py test.py" (this doesn't test pycuda for now) test.py is stopped by pressing q
