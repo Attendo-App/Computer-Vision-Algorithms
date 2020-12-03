@@ -36,7 +36,7 @@ while True:
     cv.imshow('sharp2', sharp2.astype('uint8'))
 
     # Display the resulting frame
-    cv.imshow('frame', edges.astype('uint8'))
+    #cv.imshow('frame', edges.astype('uint8'))
 
     #exit on press q
     if cv.waitKey(1) == ord('q'):
