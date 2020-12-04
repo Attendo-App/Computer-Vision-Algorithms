@@ -24,7 +24,7 @@ while True:
     gray = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
     h, w = gray.shape
     if(x == 0):
-        print(type(gray.nbytes))
+        print(w)
         #print(edges)
         x = x + 1
     edges = sobelCuda.sobel(gray)

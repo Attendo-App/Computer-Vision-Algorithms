@@ -34,8 +34,7 @@ def sobel(img):
         __global__ void convolve(short *horizontal, short *vertical, float *img, float *result)
         {
             int i = threadIdx.x + 1;
-            int j = threadIdx.y + 1;
-            int idx = i + j * blockDim.x;
+            int j = blockIdx.x + 1;
             
             float horizontalDiff = 0;
             float verticalDiff = 0;
@@ -44,16 +43,16 @@ def sobel(img):
             {
                 for(int l = -1; l <=1; l++)
                 {
-                    horizontalDiff += horizontal[1+k + (1+l)*3] * img[i + k + (j + l) * blockDim.x];
-                    verticalDiff += vertical[1+k + (1+l)*3] * img[i + k + (j + l) * blockDim.x];
+                    horizontalDiff += horizontal[1+k + (1+l)*3] * img[i + k + (j + l) * 478];
+                    verticalDiff += vertical[1+k + (1+l)*3] * img[i + k + (j + l) * 478];
                 }
             }
-            result[i - 1 + (j - 1) * blockDim.x] = sqrt(horizontalDiff * horizontalDiff + verticalDiff * verticalDiff);
+            result[i - 1 + (j - 1) * 478] = sqrt(horizontalDiff * horizontalDiff + verticalDiff * verticalDiff);
         }
     """)
 
     func = module.get_function("convolve")
-    func(horizontal_cuda, vertical_cuda, img_cuda, result_cuda, block = (h-2, w-2, 1), grid = (1, 1))
+    func(horizontal_cuda, vertical_cuda, img_cuda, result_cuda, block = (478, 1, 1), grid = (638, 1))
     cuda.memcpy_dtoh(result, result_cuda)
 
     return result.astype(np.uint8)
