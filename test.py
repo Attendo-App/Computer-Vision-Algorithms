@@ -1,5 +1,4 @@
 import numpy as np
-import pycuda
 import cv2 as cv
 import blur_kernel as blr
 import Sobel_Edge_Detect_Naive as sobelNaive
@@ -21,7 +20,7 @@ while True:
 
     # Our operations on the frame come here
     gray = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
-    #edges = sobelnaive.sobel(gray)
+    edges = sobelNaive.sobel(gray)
     if(x == 0):
         print(type(gray))
         #print(edges)
@@ -30,10 +29,10 @@ while True:
     # Display the resulting frame
 
     cv.imshow('original', gray.astype('uint8'))
-    #cv.imshow('frame', edges.astype('uint8'))
-    cv.imshow('blur', blur_img.astype('uint8'))
-    cv.imshow('sharp1', sharp1.astype('uint8'))
-    cv.imshow('sharp2', sharp2.astype('uint8'))
+    cv.imshow('frame', edges.astype('uint8'))
+    #cv.imshow('blur', blur_img.astype('uint8'))
+    #cv.imshow('sharp1', sharp1.astype('uint8'))
+    #cv.imshow('sharp2', sharp2.astype('uint8'))
 
     # Display the resulting frame
     #cv.imshow('frame', edges.astype('uint8'))
