@@ -1,5 +1,4 @@
 import numpy as np
-import pycuda
 import cv2 as cv
 import blur_kernel as blr
 import Sobel_Edge_Detect_Naive as sobelNaive

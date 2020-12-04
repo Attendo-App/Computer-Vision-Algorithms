@@ -11,7 +11,7 @@ def conv_naive(img,kernel): # function for convolving(only for 3*3 kernels)
     final_img=np.zeros((h,w))
     for i in range (1, h+1):
         for j in range (1, w+1):
-            for k in range (-1, 1):
-                for l in range (-1, 1):
+            for k in range (-1, 2):
+                for l in range (-1, 2):
                     final_img[i-1][j-1] += kernel[1 + k][1 + l] * src_img[i + k][j + l] 
     return final_img                     
