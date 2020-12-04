@@ -14,8 +14,8 @@ def sobel(img):
     
     img, im1, im2 = blr.blur_and_shapen(img)  #  blurring the image to reduce noise spikes
 
-    gradient_image = np.zeros((480, 640))
-    src_img=np.zeros((482,642))
+    gradient_image = np.zeros((h,w))
+    src_img=np.zeros((h+2,w+2))
     for i in range(1,h+1):
         for j in range(1,w+1):
           src_img[i][j]=img[i-1][j-1]
