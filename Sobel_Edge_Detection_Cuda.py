@@ -1,60 +1,49 @@
 import pycuda.driver as cuda
 import pycuda.autoinit
+import pycuda.gpuarray as gpuarr
 import numpy as np
 from pycuda.compiler import SourceModule
 
 def sobel(img):
     h, w = img.shape
 
-    #h_cuda = cuda.mem_alloc(4)
-    #print(type(h_cuda))
-    #cuda.memcpy_htod(h_cuda, h)
-
-    #w_cuda = cuda.mem_alloc(4)
-    #cuda.memcpy_htod(w_cuda, w)
-
     #this will calculate the horizontal gradient ie - the vertical edges
-    horizontal = np.array([[-1, 0, 1], [-2, 0, 2], [-1, 0, 1]]).astype(np.int16)
-    horizontal_cuda = cuda.mem_alloc(horizontal.nbytes)
-    cuda.memcpy_htod(horizontal_cuda, horizontal)
+    horizontal = np.array([[-1, 0, 1], [-2, 0, 2], [-1, 0, 1]]).astype(np.int32)
+    horizontal_cuda = gpuarr.to_gpu(horizontal)
 
     #this will calculate the vertical gradient ie - the horizontal edges
-    vertical = np.array([[-1, -2, -1], [0, 0, 0], [1, 2, 1]]).astype(np.int16)
-    vertical_cuda = cuda.mem_alloc(vertical.nbytes)
-    cuda.memcpy_htod(vertical_cuda, vertical)
+    vertical = np.array([[-1, -2, -1], [0, 0, 0], [1, 2, 1]]).astype(np.int32)
+    vertical_cuda = gpuarr.to_gpu(vertical)
 
+    img_cuda = gpuarr.to_gpu(img.astype(np.int32))
 
-    img_cuda = cuda.mem_alloc(img.astype(np.float32).nbytes)
-    cuda.memcpy_htod(img_cuda, img.astype(np.float32))
-
-    result = np.zeros((h,w), np.float32)
-    result_cuda = cuda.mem_alloc(result.nbytes)
+    result_cuda = gpuarr.zeros((h, w), np.int32)
+    result = np.zeros((h, w), np.int32)
 
     module = SourceModule("""
-        __global__ void convolve(short *horizontal, short *vertical, float *img, float *result)
+        __global__ void convolve(int horizontal[3][3], int vertical[3][3], int img[480][640], int result[480][640])
         {
-            int i = threadIdx.x + 1;
-            int j = blockIdx.x + 1;
+            int i = blockIdx.x + 1;
+            int j = blockIdx.y + 1;
             
-            float horizontalDiff = 0;
-            float verticalDiff = 0;
+            int horizontalDiff = 0;
+            int verticalDiff = 0;
 
             for(int k = -1; k <= 1; k++)
             {
                 for(int l = -1; l <=1; l++)
                 {
-                    horizontalDiff += horizontal[1+k + (1+l)*3] * img[i + k + (j + l) * 478];
-                    verticalDiff += vertical[1+k + (1+l)*3] * img[i + k + (j + l) * 478];
+                    horizontalDiff += horizontal[1+k][1+l] * img[i + k][j + l];
+                    verticalDiff += vertical[1+k][1+l] * img[i + k][j + l];
                 }
             }
-            result[i - 1 + (j - 1) * 478] = sqrt(horizontalDiff * horizontalDiff + verticalDiff * verticalDiff);
+            result[i-1][j-1] = sqrt((float)(horizontalDiff * horizontalDiff + verticalDiff * verticalDiff));
         }
     """)
 
     func = module.get_function("convolve")
-    func(horizontal_cuda, vertical_cuda, img_cuda, result_cuda, block = (478, 1, 1), grid = (638, 1))
-    cuda.memcpy_dtoh(result, result_cuda)
-
+    func(horizontal_cuda, vertical_cuda, img_cuda, result_cuda, block = (1, 1, 1), grid = (478, 638))
+    result = result_cuda.get()
     return result.astype(np.uint8)
 
 
